@@ -16,6 +16,21 @@ endif ()
 include(cmake-common/cmake/DkybBuildSettings.cmake)
 dkyb_apply_common_settings(CXX_STANDARD 23)
 
+option(PERFORMANCETIMER_FETCH_GOOGLETEST "Fetch GoogleTest with CMake" ON)
+if(BUILD_TESTING)
+    include(FetchContent)
+    if(PERFORMANCETIMER_FETCH_GOOGLETEST)
+        set(INSTALL_GTEST ON CACHE BOOL "" FORCE)
+        FetchContent_Declare(
+                googletest
+                URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+        )
+        FetchContent_MakeAvailable(googletest)
+    else()
+        find_package(GTest REQUIRED)
+    endif()
+endif()
+
 set(CMAKE_FIND_LIBRARY_PREFIXES lib)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(BUILD_SHARED_LIBS OFF)

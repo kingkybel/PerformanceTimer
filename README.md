@@ -38,7 +38,11 @@ Required:
 
 For tests:
 
-- GoogleTest libraries (`gtest`, `gtest_main`) available to the linker
+- GoogleTest is fetched automatically by CMake (`PERFORMANCETIMER_FETCH_GOOGLETEST=ON` by default)
+
+If you want to use a system-installed GTest instead:
+
+- configure with `-DPERFORMANCETIMER_FETCH_GOOGLETEST=OFF`
 
 ### Clone
 
