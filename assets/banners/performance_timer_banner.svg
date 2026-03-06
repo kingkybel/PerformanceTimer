@@ -1,0 +1,47 @@
+<svg width="1600" height="400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PerformanceTimer banner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F5F3D"/>
+      <stop offset="100%" stop-color="#1C8B52"/>
+    </linearGradient>
+    <linearGradient id="halo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDE047" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#FACC15" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="400" fill="url(#bg)"/>
+
+  <circle cx="220" cy="390" r="280" fill="#052E1E" fill-opacity="0.25"/>
+  <circle cx="1430" cy="60" r="180" fill="url(#halo)"/>
+  <circle cx="980" cy="320" r="140" fill="#14532D" fill-opacity="0.22"/>
+
+  <g transform="translate(110, 205)">
+    <text font-family="Segoe UI, Arial, sans-serif" font-size="94" font-weight="700" fill="#ECFCCB">PerformanceTimer</text>
+    <text y="68" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#FEF9C3">Scoped performance instrumentation for C++</text>
+  </g>
+
+  <g transform="translate(1295, 200)">
+    <circle r="155" fill="#14532D" stroke="#FACC15" stroke-width="6"/>
+    <circle r="112" fill="#166534" stroke="#FEF08A" stroke-width="10"/>
+
+    <rect x="-26" y="-170" width="52" height="34" rx="9" fill="#FACC15"/>
+    <rect x="-60" y="-145" width="120" height="20" rx="8" fill="#FDE047"/>
+    <rect x="70" y="-128" width="38" height="14" rx="7" transform="rotate(28 89 -121)" fill="#FDE047"/>
+
+    <line x1="0" y1="0" x2="0" y2="-65" stroke="#FACC15" stroke-width="8" stroke-linecap="round"/>
+    <line x1="0" y1="0" x2="48" y2="26" stroke="#FEF08A" stroke-width="7" stroke-linecap="round"/>
+    <circle r="11" fill="#FEF08A"/>
+
+    <g stroke="#D9F99D" stroke-width="4" stroke-linecap="round" opacity="0.9">
+      <line x1="0" y1="-95" x2="0" y2="-82"/>
+      <line x1="67" y1="-67" x2="58" y2="-58"/>
+      <line x1="95" y1="0" x2="82" y2="0"/>
+      <line x1="67" y1="67" x2="58" y2="58"/>
+      <line x1="0" y1="95" x2="0" y2="82"/>
+      <line x1="-67" y1="67" x2="-58" y2="58"/>
+      <line x1="-95" y1="0" x2="-82" y2="0"/>
+      <line x1="-67" y1="-67" x2="-58" y2="-58"/>
+    </g>
+  </g>
+</svg>

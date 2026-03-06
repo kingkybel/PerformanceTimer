@@ -1,0 +1,37 @@
+<svg width="1600" height="400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DebugTrace banner">
+  <!-- Background: Deep Reddish-Brown -->
+  <rect width="1600" height="400" fill="#5D2E1F"/>
+  
+  <!-- Decorative background elements -->
+  <circle cx="200" cy="400" r="300" fill="#3D1F16" fill-opacity="0.3"/>
+  <circle cx="1450" cy="50" r="200" fill="#ffffff" fill-opacity="0.05"/>
+  
+  <!-- Text Content: Neatly Aligned, Creamy Tones -->
+  <g transform="translate(120, 205)">
+    <text font-family="Segoe UI, Arial, sans-serif" font-size="96" font-weight="700" fill="#FDF2F0">DebugTrace</text>
+    <text y="70" font-family="Segoe UI, Arial, sans-serif" font-size="36" fill="#F5E1DA">Simple debug tracing for C++</text>
+  </g>
+  
+  <!-- Right Side Icon: Centered Vertically -->
+  <g transform="translate(1300, 200)">
+    <!-- Background Circle: Muted Reddish-Brown -->
+    <circle r="160" fill="#704241" stroke="#A67B71" stroke-width="4"/>
+    
+    <!-- Bug Icon: Dark Brown -->
+    <g id="bug-icon">
+        <!-- Legs -->
+        <path d="M-60,-30 L-85,-50 M-75,10 L-100,10 M-60,50 L-85,70" stroke="#2B1B17" stroke-width="6" stroke-linecap="round"/>
+        <path d="M60,-30 L85,-50 M75,10 L100,10 M60,50 L85,70" stroke="#2B1B17" stroke-width="6" stroke-linecap="round"/>
+        <!-- Body -->
+        <ellipse cx="0" cy="20" rx="45" ry="65" fill="#2B1B17"/>
+        <!-- Head -->
+        <circle cx="0" cy="-50" r="30" fill="#2B1B17"/>
+        <!-- Antennae -->
+        <path d="M-12,-75 L-30,-100 M12,-75 L30,-100" stroke="#2B1B17" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    
+    <!-- Prohibition sign (Crossed out bug) -->
+    <circle r="130" fill="none" stroke="#C1272D" stroke-width="15" opacity="0.9"/>
+    <line x1="-92" y1="-92" x2="92" y2="92" stroke="#C1272D" stroke-width="15" stroke-linecap="round" opacity="0.9"/>
+  </g>
+</svg>
