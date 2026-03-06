@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "VSCodeToSonarCloudConnection",
+        "projectKey": "kingkybel_PerformanceTimer"
+    }
+}
