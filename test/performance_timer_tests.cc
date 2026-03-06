@@ -25,6 +25,7 @@
 #define DO_PERFORMANCE_
 #include "performance_timer.h"
 
+#include <atomic>
 #include <cmath>
 #include <cstdlib>
 #include <gtest/gtest.h>
@@ -61,7 +62,7 @@ TEST_F(TimerTest, DISABLED_correct_performance_measurement)
     size_t num_outer_loop = 30;
     try
     {
-        volatile int sink = 0;
+        std::atomic<int> sink{0};
         START_PERF;
         for (size_t j = 0; j < num_outer_loop; j++)
         {
@@ -70,7 +71,7 @@ TEST_F(TimerTest, DISABLED_correct_performance_measurement)
             {
                 int x = i * j;
                 x     = x * x;
-                sink += x;
+                sink.fetch_add(x, std::memory_order_relaxed);
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
             END_PERF

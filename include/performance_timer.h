@@ -24,10 +24,12 @@
 #include <chrono>
 #include <deque>
 #include <exception>
+#include <functional>
 #include <optional>
 #include <set>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #if __has_include(<source_location>)
     #include <source_location>
@@ -72,6 +74,26 @@ struct no_such_key : std::runtime_error
 class performance_timer
 {
   public:
+    struct transparent_string_hash
+    {
+        using is_transparent = void;
+
+        std::size_t operator()(std::string_view value) const noexcept
+        {
+            return std::hash<std::string_view>{}(value);
+        }
+
+        std::size_t operator()(std::string const& value) const noexcept
+        {
+            return (*this)(std::string_view{value});
+        }
+
+        std::size_t operator()(char const* value) const noexcept
+        {
+            return (*this)(std::string_view{value});
+        }
+    };
+
     using clock_t      = std::chrono::high_resolution_clock;
     using second_t     = std::chrono::duration<double, std::ratio<1>>;
     using nanosecond_t = std::chrono::duration<double, std::nano>;
@@ -91,9 +113,9 @@ class performance_timer
     performance_timer(performance_timer&)            = delete;
     performance_timer& operator=(performance_timer&) = delete;
 
-    std::unordered_map<std::string, stats>       stat_map_{};
-    std::unordered_map<std::string, std::string> alias_{};
-    std::deque<std::string>                      marker_stack_{};
+    std::unordered_map<std::string, stats, transparent_string_hash, std::equal_to<>>       stat_map_{};
+    std::unordered_map<std::string, std::string, transparent_string_hash, std::equal_to<>> alias_{};
+    std::deque<std::string>                                                                marker_stack_{};
 
   public:
     /**
@@ -200,7 +222,7 @@ class performance_timer
      * @param key string-key or alias
      * @return util::performance_timer::stats the statistics for the given key, or empty stats if key cannot be found
      */
-    auto get_stat(std::string const& key) const
+    auto get_stat(std::string_view key) const
     {
         auto found = stat_map_.find(key);
         if (found != stat_map_.end())
