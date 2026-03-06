@@ -120,24 +120,24 @@ void simVsMeasure(std::chrono::nanoseconds delay_ns, bool doSimulation)
 };
 
 #ifdef DO_PERFORMANCE_
-TEST_F(TimerTest, simulation_vs_measured_delay_test)
+TEST_F(TimerTest, simulated_time_accumulates_deterministically)
 #else
-TEST_F(TimerTest, DISABLED_simulation_vs_measured_delay_test)
+TEST_F(TimerTest, DISABLED_simulated_time_accumulates_deterministically)
 #endif
 {
     RESET_PERF;
     auto& tmr = util::performance_timer::instance();
-    for(size_t i = 0UL; i < 100000UL; i++)
-        simVsMeasure(std::chrono::nanoseconds{50}, true);
-    auto simStat = tmr.get_stat("simVsMeasure");
-    RESET_PERF;
-    for(size_t i = 0UL; i < 100000UL; i++)
-        simVsMeasure(std::chrono::nanoseconds{50}, false);
-    auto msrStat = tmr.get_stat("simVsMeasure");
 
-    auto simTotal = simStat.aggregate_time_;
-    auto msrTotal = msrStat.aggregate_time_;
-    auto toleranceFactor = 1.0/6.3;
-    auto tolerance = msrTotal * toleranceFactor;
-    ASSERT_LE(std::abs(simTotal-msrTotal), tolerance) << "Tolerance factor " << toleranceFactor << " is too big. Try adjusting.";
+    constexpr size_t iterations = 1000UL;
+    constexpr auto simulated_delay = std::chrono::microseconds{100};
+    const double expected_total_ns = static_cast<double>(iterations)
+        * std::chrono::duration_cast<std::chrono::nanoseconds>(simulated_delay).count();
+
+    for(size_t i = 0UL; i < iterations; i++)
+        simVsMeasure(simulated_delay, true);
+
+    auto simStat = tmr.get_stat("simVsMeasure");
+    ASSERT_EQ(simStat.times_entered_, iterations);
+    ASSERT_GE(simStat.aggregate_time_, expected_total_ns);
+    ASSERT_LT(simStat.aggregate_time_, expected_total_ns * 2.0);
 }

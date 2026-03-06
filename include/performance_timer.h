@@ -60,7 +60,7 @@ class performance_timer
     public:
     using clock_t      = std::chrono::high_resolution_clock;
     using second_t     = std::chrono::duration<double, std::ratio<1>>;
-    using nanosecond_t = std::chrono::duration<double, std::ratio<1>>;
+    using nanosecond_t = std::chrono::duration<double, std::nano>;
     struct stats
     {
         int32_t                          start_line_     = -1;
@@ -159,7 +159,7 @@ class performance_timer
         for(const auto& key: marker_stack_)
         {
             auto found = stat_map_.find(key);
-            found->second.aggregate_time_ += time_ns.count() / 1e6;
+            found->second.aggregate_time_ += static_cast<double>(time_ns.count());
         }
     }
 
