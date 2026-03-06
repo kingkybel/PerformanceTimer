@@ -109,12 +109,13 @@ class performance_timer
     };
 
   private:
-    performance_timer()                                    = default;
-    ~performance_timer()                                   = default;
-    performance_timer(performance_timer const&)            = delete;
-    performance_timer(performance_timer&&)                 = delete;
-    performance_timer& operator=(performance_timer const&) = delete;
-    performance_timer& operator=(performance_timer&&)      = delete;
+    performance_timer()                                          = default;
+    ~performance_timer()                                         = default;
+    performance_timer(performance_timer const&)                  = delete;
+    performance_timer(performance_timer&&)                       = delete;
+    performance_timer&       operator=(performance_timer const&) = delete;
+    performance_timer&       operator=(performance_timer&&)      = delete;
+    static performance_timer the_instance_;
 
     std::unordered_map<std::string, stats, transparent_string_hash, std::equal_to<>>       stat_map_{};
     std::unordered_map<std::string, std::string, transparent_string_hash, std::equal_to<>> alias_{};
@@ -128,8 +129,7 @@ class performance_timer
      */
     static performance_timer& instance() noexcept
     {
-        static performance_timer the_instance{};
-        return the_instance;
+        return the_instance_;
     }
 
     /**
@@ -224,13 +224,14 @@ class performance_timer
      */
     [[nodiscard]] auto get_stat(std::string_view key) const
     {
-        auto found = stat_map_.find(key);
+        auto const owned_key = std::string{key};
+        auto       found     = stat_map_.find(owned_key);
         if (found != stat_map_.end())
         {
             return found->second;
         }
 
-        if (auto found_alias = alias_.find(key); found_alias != alias_.end())
+        if (auto found_alias = alias_.find(owned_key); found_alias != alias_.end())
         {
             found = stat_map_.find(found_alias->second);
         }
@@ -271,6 +272,8 @@ class performance_timer
         return os;
     }
 };
+
+inline performance_timer performance_timer::the_instance_{};
     #if defined DO_PERFORMANCE_
         #define RESET_PERF                                                                                             \
             {                                                                                                          \
@@ -302,7 +305,13 @@ class performance_timer
                     ss << loc.file_name() << ":" << loc.line() << " (" << loc.function_name() << ")";                  \
                     the_timer.start(ss.str(), static_cast<int32_t>(loc.line()), #name);                                \
                 }
-        #else
+            #define END_PERF                                                                                           \
+                {                                                                                                      \
+                    auto&      the_timer = util::performance_timer::instance();                                        \
+                    auto const loc       = DKYB_SOURCE_LOCATION_T::current();                                          \
+                    the_timer.end(loc.line());                                                                         \
+                }
+        #else // not defined(DKYB_HAS_SOURCE_LOCATION)
             #define START_PERF                                                                                         \
                 {                                                                                                      \
                     auto&             the_timer = util::performance_timer::instance();                                 \
@@ -318,13 +327,12 @@ class performance_timer
                     ss << __FILE__ << ":" << __LINE__ << "(" << __PRETTY_FUNCTION__ << ")";                            \
                     the_timer.start(ss.str(), __LINE__, #name);                                                        \
                 }
+            #define END_PERF                                                                                           \
+                {                                                                                                      \
+                    auto& the_timer = util::performance_timer::instance();                                             \
+                    the_timer.end(__LINE__);                                                                           \
+                }
         #endif
-
-        #define END_PERF                                                                                               \
-            {                                                                                                          \
-                auto& the_timer = util::performance_timer::instance();                                                 \
-                the_timer.end(__LINE__);                                                                               \
-            }
 
     #else
         #define RESET_PERF

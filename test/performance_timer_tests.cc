@@ -62,7 +62,7 @@ TEST_F(TimerTest, DISABLED_correct_performance_measurement)
     size_t num_outer_loop = 30;
     try
     {
-        std::atomic<int> sink{0};
+        std::atomic sink{0};
         START_PERF;
         for (size_t j = 0; j < num_outer_loop; j++)
         {
@@ -78,7 +78,7 @@ TEST_F(TimerTest, DISABLED_correct_performance_measurement)
         }
         END_PERF;
     }
-    catch (std::exception const& e)
+    catch (std::exception const& e) // NOSONAR
     {
         FAIL() << "Well formed performance measurement should not have thrown";
     }
@@ -101,7 +101,7 @@ TEST_F(TimerTest, DISABLED_incorrect_performance_measurement)
         END_PERF;
         FAIL() << "Incorrectly formed performance measurement should have thrown";
     }
-    catch (std::exception const& e)
+    catch (std::exception const& e) // NOSONAR
     {
         // all ok
     }
