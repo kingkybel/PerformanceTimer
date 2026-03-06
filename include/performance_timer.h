@@ -109,9 +109,12 @@ class performance_timer
     };
 
   private:
-    performance_timer()                              = default;
-    performance_timer(performance_timer&)            = delete;
-    performance_timer& operator=(performance_timer&) = delete;
+    performance_timer()                                    = default;
+    ~performance_timer()                                   = default;
+    performance_timer(performance_timer const&)            = delete;
+    performance_timer(performance_timer&&)                 = delete;
+    performance_timer& operator=(performance_timer const&) = delete;
+    performance_timer& operator=(performance_timer&&)      = delete;
 
     std::unordered_map<std::string, stats, transparent_string_hash, std::equal_to<>>       stat_map_{};
     std::unordered_map<std::string, std::string, transparent_string_hash, std::equal_to<>> alias_{};
@@ -123,9 +126,9 @@ class performance_timer
      *
      * @return performance_timer& the one and only instance
      */
-    static performance_timer& instance()
+    static performance_timer& instance() noexcept
     {
-        static auto the_instance = performance_timer{};
+        static performance_timer the_instance{};
         return the_instance;
     }
 
@@ -135,6 +138,7 @@ class performance_timer
     void reset()
     {
         stat_map_.clear();
+        alias_.clear();
         marker_stack_.clear();
     }
 
@@ -145,24 +149,19 @@ class performance_timer
      * @param start_line line in the code where recording starts
      * @param alias an optional alis to make it easier to find the statistics structure where perfomance is recorded.
      */
-    void start(std::string const& key, int32_t start_line, std::optional<std::string> alias = {})
+    void start(std::string_view key, int32_t start_line, std::optional<std::string_view> alias = std::nullopt)
     {
-        auto found = stat_map_.find(key);
-        if (found == stat_map_.end())
-        {
-            // insert an element
-            auto emplaced = stat_map_.try_emplace(key, stats{});
-            found         = emplaced.first;
-        }
+        auto [found, _inserted] = stat_map_.try_emplace(std::string{key});
         if (alias)
         {
-            alias_[alias.value()] = key;
+            alias_.insert_or_assign(std::string{*alias}, found->first);
         }
 
-        found->second.start_line_ = start_line;
-        found->second.start_      = clock_t::now();
-        found->second.times_entered_++;
-        marker_stack_.push_front(key);
+        auto& entry       = found->second;
+        entry.start_line_ = start_line;
+        entry.start_      = clock_t::now();
+        entry.times_entered_++;
+        marker_stack_.push_front(found->first);
     }
 
     /**
@@ -177,18 +176,17 @@ class performance_timer
             throw util::no_such_key();
         }
 
-        auto key = marker_stack_[0];
+        auto key = marker_stack_.front();
         marker_stack_.pop_front();
-        auto found = stat_map_.find(key);
-        if (found == stat_map_.end())
+        if (auto found = stat_map_.find(key); found != stat_map_.end())
         {
-            throw util::no_such_key(key);
+            auto& entry     = found->second;
+            entry.end_line_ = end_line;
+            entry.end_      = clock_t::now();
+            entry.aggregate_time_ += std::chrono::duration_cast<nanosecond_t>(entry.end_ - entry.start_).count();
+            return;
         }
-        found->second.end_line_ = end_line;
-        found->second.end_      = clock_t::now();
-        found->second.aggregate_time_ +=
-            (std::chrono::duration_cast<nanosecond_t>(found->second.end_ - found->second.start_).count());
-        stat_map_[key];
+        throw util::no_such_key(key);
     }
 
     /**
@@ -201,8 +199,10 @@ class performance_timer
         // increase the times for every timing frame on the stack by given nano-seconds
         for (auto const& key: marker_stack_)
         {
-            auto found = stat_map_.find(key);
-            found->second.aggregate_time_ += static_cast<double>(time_ns.count());
+            if (auto found = stat_map_.find(key); found != stat_map_.end())
+            {
+                found->second.aggregate_time_ += static_cast<double>(time_ns.count());
+            }
         }
     }
 
@@ -211,7 +211,7 @@ class performance_timer
      *
      * @return the (iterable) container with the statistics
      */
-    auto get_stats() const
+    [[nodiscard]] auto const& get_stats() const noexcept
     {
         return stat_map_;
     }
@@ -222,7 +222,7 @@ class performance_timer
      * @param key string-key or alias
      * @return util::performance_timer::stats the statistics for the given key, or empty stats if key cannot be found
      */
-    auto get_stat(std::string_view key) const
+    [[nodiscard]] auto get_stat(std::string_view key) const
     {
         auto found = stat_map_.find(key);
         if (found != stat_map_.end())
@@ -246,7 +246,7 @@ class performance_timer
      *
      * @return auto
      */
-    bool empty() const
+    [[nodiscard]] bool empty() const noexcept
     {
         return marker_stack_.empty();
     }
