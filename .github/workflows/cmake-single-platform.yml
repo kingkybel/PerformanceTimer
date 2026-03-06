@@ -26,18 +26,39 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Cache CMake FetchContent
+    - name: Cache gtest
       uses: actions/cache@v4
+      id: cache-gtest
       with:
-        path: ${{ env.FETCHCONTENT_DIR }}
-        key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-fetchcontent-
+        path: ~/gtest
+        key: ${{ runner.os }}-gtest-latest
+
+    - name: Install gtest
+      env:
+        CACHE_HIT: ${{steps.cache-gtest.outputs.cache-hit}}
+      run: |
+        if [[ "$CACHE_HIT" == 'true' ]]; then
+          cd ~/gtest
+          sudo cp lib/*.a /usr/lib
+          sudo cp -R ~/gtest/* /usr
+        else
+          git clone https://github.com/google/googletest.git
+          cd googletest
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build .
+          mkdir -p ~/gtest
+          cmake --install . --prefix ~/gtest
+          cd ~/gtest
+          sudo cp lib/*.a /usr/lib
+          sudo cp -R ~/gtest/* /usr
+        fi
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFETCHCONTENT_BASE_DIR=${{env.FETCHCONTENT_DIR}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DPERFORMANCETIMER_FETCH_GOOGLETEST=OFF
 
     - name: Build
       # Build your program with the given configuration
@@ -56,13 +77,34 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Cache CMake FetchContent
+    - name: Cache gtest
       uses: actions/cache@v4
+      id: cache-gtest
       with:
-        path: ${{ env.FETCHCONTENT_DIR }}
-        key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-fetchcontent-
+        path: ~/gtest
+        key: ${{ runner.os }}-gtest-latest
+
+    - name: Install gtest
+      env:
+        CACHE_HIT: ${{steps.cache-gtest.outputs.cache-hit}}
+      run: |
+        if [[ "$CACHE_HIT" == 'true' ]]; then
+          cd ~/gtest
+          sudo cp lib/*.a /usr/lib
+          sudo cp -R ~/gtest/* /usr
+        else
+          git clone https://github.com/google/googletest.git
+          cd googletest
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build .
+          mkdir -p ~/gtest
+          cmake --install . --prefix ~/gtest
+          cd ~/gtest
+          sudo cp lib/*.a /usr/lib
+          sudo cp -R ~/gtest/* /usr
+        fi
 
     - name: Install lcov
       run: |
@@ -71,7 +113,7 @@ jobs:
 
     - name: Configure CMake (coverage)
       run: |
-        cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DFETCHCONTENT_BASE_DIR=${{env.FETCHCONTENT_DIR}}
+        cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DPERFORMANCETIMER_FETCH_GOOGLETEST=OFF
 
     - name: Build (coverage)
       run: cmake --build ${{github.workspace}}/${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}}
@@ -156,13 +198,34 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential cmake ninja-build curl unzip
 
-      - name: Cache CMake FetchContent
+      - name: Cache gtest
         uses: actions/cache@v4
+        id: cache-gtest
         with:
-          path: ${{ env.FETCHCONTENT_DIR }}
-          key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-fetchcontent-
+          path: ~/gtest
+          key: ${{ runner.os }}-gtest-latest
+
+      - name: Install gtest
+        env:
+          CACHE_HIT: ${{steps.cache-gtest.outputs.cache-hit}}
+        run: |
+          if [[ "$CACHE_HIT" == 'true' ]]; then
+            cd ~/gtest
+            sudo cp lib/*.a /usr/lib
+            sudo cp -R ~/gtest/* /usr
+          else
+            git clone https://github.com/google/googletest.git
+            cd googletest
+            mkdir build
+            cd build
+            cmake ..
+            cmake --build .
+            mkdir -p ~/gtest
+            cmake --install . --prefix ~/gtest
+            cd ~/gtest
+            sudo cp lib/*.a /usr/lib
+            sudo cp -R ~/gtest/* /usr
+          fi
 
       - name: Install Sonar build-wrapper
         run: |
@@ -172,7 +235,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B "${{env.BUILD_DIR}}" -G Ninja -DCMAKE_BUILD_TYPE="${{env.BUILD_TYPE}}" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DFETCHCONTENT_BASE_DIR="${{env.FETCHCONTENT_DIR}}"
+          cmake -S . -B "${{env.BUILD_DIR}}" -G Ninja -DCMAKE_BUILD_TYPE="${{env.BUILD_TYPE}}" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPERFORMANCETIMER_FETCH_GOOGLETEST=OFF
 
       - name: Build (captured by build-wrapper)
         run: |
