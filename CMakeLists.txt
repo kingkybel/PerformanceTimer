@@ -8,27 +8,28 @@ include(GNUInstallDirs)
 include(CTest)
 
 # Use shared settings from cmake-common submodule
-if (NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake-common/cmake/DkybBuildSettings.cmake")
-    message(FATAL_ERROR
-        "Missing cmake-common submodule. Run:\n"
-        "  git submodule update --init --recursive")
-endif ()
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake-common/cmake/DkybBuildSettings.cmake")
+        message(FATAL_ERROR
+                "Missing cmake-common submodule. Run:\n"
+                "  git submodule update --init --recursive")
+endif()
 include(cmake-common/cmake/DkybBuildSettings.cmake)
 dkyb_apply_common_settings(CXX_STANDARD 23)
+dkyb_update_submodules()
 
 option(PERFORMANCETIMER_FETCH_GOOGLETEST "Fetch GoogleTest with CMake" ON)
 if(BUILD_TESTING)
-    include(FetchContent)
-    if(PERFORMANCETIMER_FETCH_GOOGLETEST)
-        set(INSTALL_GTEST ON CACHE BOOL "" FORCE)
-        FetchContent_Declare(
-                googletest
-                URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
-        )
-        FetchContent_MakeAvailable(googletest)
-    else()
-        find_package(GTest REQUIRED)
-    endif()
+        include(FetchContent)
+        if(PERFORMANCETIMER_FETCH_GOOGLETEST)
+                set(INSTALL_GTEST ON CACHE BOOL "" FORCE)
+                FetchContent_Declare(
+                        googletest
+                        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+                )
+                FetchContent_MakeAvailable(googletest)
+        else()
+                find_package(GTest REQUIRED)
+        endif()
 endif()
 
 set(CMAKE_FIND_LIBRARY_PREFIXES lib)
@@ -57,7 +58,7 @@ target_include_directories(
 target_compile_features(PerformanceTimer INTERFACE cxx_std_23)
 
 if(BUILD_TESTING)
-    add_subdirectory(test)
+        add_subdirectory(test)
 endif()
 
 set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=* -p ${CMAKE_SOURCE_DIR}/build")
